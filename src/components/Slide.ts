@@ -34,11 +34,18 @@ export default defineComponent({
 
     const slideStyle = computed((): ElementStyleObject => {
       const items = config.itemsToShow;
-      const width = `${(1 / items) * 100}%`;
-      return {
-        width,
+      const size = `${(1 / items) * 100}%`;
+      const styles = {
+        height: '',
+        width: '',
         order: wrapOrder.value.toString(),
-      };
+      }
+      if (config.direction === 'vertical') {
+        styles.height = size;
+      } else {
+        styles.width = size;
+      }
+      return styles;
     });
 
     const isActive = (): boolean => props.index === currentSlide.value;

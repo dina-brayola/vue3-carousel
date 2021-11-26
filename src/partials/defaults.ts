@@ -3,6 +3,7 @@ import { CarouselConfig } from '../types';
 export const defaultConfigs: CarouselConfig = {
   itemsToShow: 1,
   itemsToScroll: 1,
+  direction: 'horizontal',
   modelValue: 0,
   transition: 300,
   autoplay: 0,

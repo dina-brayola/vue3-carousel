@@ -3,3 +3,7 @@
   height: var(--vc-icn-width);
   fill: currentColor;
 }
+
+.carousel--vertical .carousel__icon {
+  transform: rotate(90deg);
+}

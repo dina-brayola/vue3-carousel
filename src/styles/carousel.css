@@ -18,3 +18,11 @@
 .carousel__viewport {
   overflow: hidden;
 }
+
+.carousel--vertical .carousel__track {
+  flex-direction: column;
+}
+
+.carousel--vertical .carousel__viewport {
+  height: 100%;
+}

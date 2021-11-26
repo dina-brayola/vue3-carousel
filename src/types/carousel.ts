@@ -2,6 +2,7 @@ export type Breakpoints = { [key: number]: Partial<CarouselConfig> };
 export interface CarouselConfig {
   itemsToShow: number;
   itemsToScroll: number;
+  direction: 'vertical' | 'horizontal';
   modelValue?: number;
   transition?: number;
   autoplay?: number;

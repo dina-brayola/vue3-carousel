@@ -34,6 +34,14 @@ import {
 export default defineComponent({
   name: 'Carousel',
   props: {
+    direction: {
+      default: defaultConfigs.direction,
+      type: String,
+      validator(value: string) {
+        // The value must match one of these strings
+        return ['vertical', 'horizontal'].includes(value);
+      },
+    },
     // count of items to showed per view
     itemsToShow: {
       default: defaultConfigs.itemsToShow,
@@ -105,6 +113,7 @@ export default defineComponent({
     const slides: Ref<any> = ref([]);
     const slidesBuffer: Ref<Array<number>> = ref([]);
     const slideWidth: Ref<number> = ref(0);
+    const slideHeight: Ref<number> = ref(0);
     const slidesCount: Ref<number> = ref(1);
     const slidesCounter: Counter = counterFactory();
 
@@ -120,7 +129,7 @@ export default defineComponent({
       initDefaultConfigs();
       updateBreakpointsConfigs();
       updateSlidesData();
-      updateSlideWidth();
+      updateSlideSize();
     });
 
     // slides
@@ -184,16 +193,20 @@ export default defineComponent({
         updateBreakpointsConfigs();
         updateSlidesData();
       }
-      updateSlideWidth();
+      updateSlideSize();
     }, 16);
 
     /**
      * Setup functions
      */
 
-    function updateSlideWidth(): void {
+    function updateSlideSize(): void {
       if (!root.value) return;
       const rect = root.value.getBoundingClientRect();
+      if (config.direction === 'vertical') {
+        slideHeight.value = rect.height / config.itemsToShow;
+        return;
+      }
       slideWidth.value = rect.width / config.itemsToShow;
     }
 
@@ -246,7 +259,7 @@ export default defineComponent({
         updateBreakpointsConfigs();
         updateSlidesData();
       }
-      updateSlideWidth();
+      updateSlideSize();
 
       if (config.autoplay && config.autoplay > 0) {
         initializeAutoplay();
@@ -303,8 +316,12 @@ export default defineComponent({
     function handleDragEnd(): void {
       isDragging.value = false;
 
-      const tolerance = Math.sign(dragged.x) * 0.4;
-      const draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance);
+      let tolerance = Math.sign(dragged.x) * 0.4;
+      let draggedSlides = Math.round(dragged.x / slideWidth.value + tolerance);
+      if (config.direction === 'vertical') {
+        tolerance = Math.sign(dragged.y) * 0.4;
+        draggedSlides = Math.round(dragged.y / slideHeight.value + tolerance);
+      }
 
       let newSlide = getCurrentSlideIndex(
         config,
@@ -405,7 +422,7 @@ export default defineComponent({
     });
     provide('slidesToScroll', slidesToScroll);
 
-    const trackStyle = computed((): ElementStyleObject => {
+    const trackStyleHorizontal = computed((): ElementStyleObject => {
       const xScroll = dragged.x - slidesToScroll.value * slideWidth.value;
       return {
         transform: `translateX(${xScroll}px)`,
@@ -413,8 +430,17 @@ export default defineComponent({
       };
     });
 
+    const trackStyleVertical = computed((): ElementStyleObject => {
+      const yScroll = dragged.y - slidesToScroll.value * slideHeight.value;
+      return {
+        transform: `translateY(${yScroll}px)`,
+        transition: `${isSliding.value ? config.transition : 0}ms`,
+      };
+    });
+
     const slotsProps = reactive({
       slideWidth,
+      slideHeight,
       slidesCount,
       currentSlide: currentSlideIndex,
     });
@@ -456,7 +482,7 @@ export default defineComponent({
         'ol',
         {
           class: 'carousel__track',
-          style: trackStyle.value,
+          style: config.direction === 'vertical' ? trackStyleVertical.value : trackStyleHorizontal.value,
           onMousedown: config.mouseDrag ? handleDragStart : null,
           onTouchstart: config.touchDrag ? handleDragStart : null,
         },
@@ -468,7 +494,7 @@ export default defineComponent({
         'section',
         {
           ref: root,
-          class: 'carousel',
+          class: `carousel carousel--${config.direction}`,
           'aria-label': 'Gallery',
           onMouseenter: handleMouseEnter,
           onMouseleave: handleMouseLeave,
