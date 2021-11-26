@@ -1,0 +1,24 @@
+export declare type Breakpoints = {
+    [key: number]: Partial<CarouselConfig>;
+};
+export interface CarouselConfig {
+    itemsToShow: number;
+    itemsToScroll: number;
+    direction: 'vertical' | 'horizontal';
+    modelValue?: number;
+    transition?: number;
+    autoplay?: number;
+    snapAlign: 'start' | 'end' | 'center' | 'center-even' | 'center-odd';
+    wrapAround?: boolean;
+    pauseAutoplayOnHover?: boolean;
+    mouseDrag?: boolean;
+    touchDrag?: boolean;
+    breakpoints?: Breakpoints;
+    settings?: Partial<CarouselConfig>;
+}
+export interface CarouselNav {
+    [key: string]: any;
+}
+export interface ElementStyleObject {
+    [key: string]: any;
+}
